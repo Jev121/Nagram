@@ -154,14 +154,14 @@ android {
         unitTests.includeAndroidResources = true
     }
 
-    signingConfigs {
-        release {
-            storeFile project.file("release.keystore")
-            storePassword keystorePwd
-            keyAlias alias
-            keyPassword pwd
-        }
-    }
+    // signingConfigs {
+    //     release {
+    //         storeFile project.file("release.keystore")
+    //         storePassword keystorePwd
+    //         keyAlias alias
+    //         keyPassword pwd
+    //     }
+    // }
 
     buildTypes {
         debug {

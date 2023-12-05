@@ -14,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nekohasekai/AndroidLibV2rayLite/VPN"
 	mobasset "golang.org/x/mobile/asset"
 
 	v2core "github.com/v2fly/v2ray-core/v5"
@@ -40,7 +39,7 @@ type V2RayPoint struct {
 	SupportSet   V2RayVPNServiceSupportsSet
 	statsManager v2stats.Manager
 
-	dialer    *VPN.ProtectedDialer
+	dialer    *ProtectedDialer
 	v2rayOP   sync.Mutex
 	closeChan chan struct{}
 
@@ -88,9 +87,13 @@ func (v *V2RayPoint) RunLoop(prefIPv6 bool) (err error) {
 		}()
 
 		if v.AsyncResolve {
-			go v.dialer.PrepareDomain(v.DomainName, v.closeChan, prefIPv6)
+			go func() {
+				v.dialer.PrepareDomain(v.DomainName, v.closeChan, prefIPv6)
+				close(v.dialer.ResolveChan())
+			}()
 		} else {
 			v.dialer.PrepareDomain(v.DomainName, v.closeChan, prefIPv6)
+			close(v.dialer.ResolveChan())
 		}
 
 		err = v.pointloop()
@@ -232,7 +235,7 @@ func NewV2RayPoint(s V2RayVPNServiceSupportsSet, adns bool) *V2RayPoint {
 			return v2commlog.NewLogger(createStdoutLogWriter()), nil
 		})
 
-	dialer := VPN.NewPreotectedDialer(s)
+	dialer := NewPreotectedDialer(s)
 	v2internet.UseAlternativeSystemDialer(dialer)
 	return &V2RayPoint{
 		SupportSet:   s,
@@ -241,15 +244,12 @@ func NewV2RayPoint(s V2RayVPNServiceSupportsSet, adns bool) *V2RayPoint {
 	}
 }
 
-func CheckVersion() int {
-	return 23
-}
-
 /*CheckVersionX string
 This func will return libv2ray binding version and V2Ray version used.
 */
 func CheckVersionX() string {
-	return fmt.Sprintf("Lib v%d, V2fly-core v%s", CheckVersion(), v2core.Version())
+	var version  = 24
+	return fmt.Sprintf("Lib v%d, V2fly-core v%s", version, v2core.Version())
 }
 
 func measureInstDelay(ctx context.Context, inst *v2core.Instance) (int64, error) {
@@ -274,7 +274,7 @@ func measureInstDelay(ctx context.Context, inst *v2core.Instance) (int64, error)
 		Timeout:   12 * time.Second,
 	}
 
-	req, _ := http.NewRequestWithContext(ctx, "GET", "http://www.google.com/generate_204", nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", "https://www.google.com/generate_204", nil)
 	start := time.Now()
 	resp, err := c.Do(req)
 	if err != nil {
@@ -285,4 +285,27 @@ func measureInstDelay(ctx context.Context, inst *v2core.Instance) (int64, error)
 	}
 	resp.Body.Close()
 	return time.Since(start).Milliseconds(), nil
+}
+
+// This struct creates our own log writer without datatime stamp
+// As Android adds time stamps on each line
+type consoleLogWriter struct {
+	logger *log.Logger
+}
+
+func (w *consoleLogWriter) Write(s string) error {
+	w.logger.Print(s)
+	return nil
+}
+
+func (w *consoleLogWriter) Close() error {
+	return nil
+}
+
+// This logger won't print data/time stamps
+func createStdoutLogWriter() v2commlog.WriterCreator {
+	return func() v2commlog.Writer {
+		return &consoleLogWriter{
+			logger: log.New(os.Stdout, "", 0)}
+	}
 }

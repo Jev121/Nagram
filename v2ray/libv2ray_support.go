@@ -1,4 +1,4 @@
-package VPN
+package libv2ray
 
 import (
 	"context"
@@ -23,6 +23,7 @@ type resolved struct {
 	domain       string
 	IPs          []net.IP
 	Port         int
+	lastResolved time.Time
 	ipIdx        uint8
 	ipLock       sync.Mutex
 	lastSwitched time.Time
@@ -98,7 +99,7 @@ func (d *ProtectedDialer) PrepareResolveChan() {
 	d.resolveChan = make(chan struct{})
 }
 
-func (d *ProtectedDialer) ResolveChan() <-chan struct{} {
+func (d *ProtectedDialer) ResolveChan() chan struct{} {
 	return d.resolveChan
 }
 
@@ -132,24 +133,34 @@ func (d *ProtectedDialer) lookupAddr(addr string) (*resolved, error) {
 		return nil, fmt.Errorf("domain %s Failed to resolve", addr)
 	}
 
-	IPs := make([]net.IP, len(addrs))
-	for i, ia := range addrs {
-		IPs[i] = ia.IP
+	IPs := make([]net.IP, 0)
+	//ipv6 is prefer, append ipv6 then ipv4
+	//ipv6 is not prefer, append ipv4 then ipv6
+	if(d.preferIPv6) {
+		for _, ia := range addrs {
+			if(ia.IP.To4() == nil) {
+				IPs = append(IPs, ia.IP)			 
+			}
+		}		
 	}
-	// LookupIPAddr returns a slice of IPs with IPv6 addrs in front,
-	// if user perfer not IPv6, revert the result so that IPv4 addr comes first
-	if !d.preferIPv6 && len(IPs) > 1 && IPs[0].To4() == nil && IPs[len(IPs)-1].To4() != nil {
-		for i := len(IPs)/2 - 1; i >= 0; i-- {
-			opp := len(IPs) - 1 - i
-			IPs[i], IPs[opp] = IPs[opp], IPs[i]
+	for _, ia := range addrs {
+		if(ia.IP.To4() != nil) {
+			IPs = append(IPs, ia.IP)	
 		}
-		log.Printf("PrepareDomain Prefer NOT IPv6 %v\n", IPs)
+	}
+	if(!d.preferIPv6) {
+		for _, ia := range addrs {
+			if(ia.IP.To4() == nil) {
+				IPs = append(IPs, ia.IP)			 
+			}
+		}		
 	}
 
 	rs := &resolved{
-		domain: host,
-		IPs:    IPs,
-		Port:   portnum,
+		domain:       host,
+		IPs:          IPs,
+		Port:         portnum,
+		lastResolved: time.Now(),
 	}
 
 	return rs, nil
@@ -161,7 +172,6 @@ func (d *ProtectedDialer) PrepareDomain(domainName string, closeCh <-chan struct
 	d.currentServer = domainName
 	d.preferIPv6 = prefIPv6
 
-	defer close(d.resolveChan)
 	maxRetry := 10
 	for {
 		if maxRetry == 0 {
@@ -221,6 +231,10 @@ func (d *ProtectedDialer) Dial(ctx context.Context,
 			if d.vServer == nil {
 				return nil, fmt.Errorf("fail to prepare domain %s", d.currentServer)
 			}
+		}
+
+		if time.Since(d.vServer.lastResolved) > time.Minute*30 {
+			go d.PrepareDomain(Address, nil, d.preferIPv6)
 		}
 
 		fd, err := d.getFd(dest.Network)

@@ -183,15 +183,7 @@ jobs:
         uses: actions/setup-go@v2
         if: steps.cache.outputs.cache-hit != 'true'
         with:
-          go-version: 1.21
-      - name: Install Gomobile
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-            go install golang.org/x/mobile/cmd/gomobile@latest
-            go install golang.org/x/mobile/cmd/gobind@latest
-        env:
-            GOPROXY: https://proxy.golang.org,direct
-            GO111MODULE: "on"
+          go-version: 1.16
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: ./run libs v2ray
@@ -278,7 +270,7 @@ jobs:
         uses: android-actions/setup-android@v2
       - name: Install NDK
         run: |
-          echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.4.7075529" --sdk_root=${ANDROID_SDK_ROOT}
+          echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.4.7075529" --sdk_root=${ANDROID_SDK_ROOT} &> /dev/null
           echo "sdk.dir=${ANDROID_HOME}" > local.properties
           echo "ndk.dir=${ANDROID_HOME}/ndk/21.4.7075529" >> local.properties
       - name: Fetch Status
@@ -362,7 +354,7 @@ jobs:
         uses: android-actions/setup-android@v2
       - name: Install NDK
         run: |
-          echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.4.7075529" --sdk_root=${ANDROID_SDK_ROOT}
+          echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.4.7075529" --sdk_root=${ANDROID_SDK_ROOT} &> /dev/null
           echo "sdk.dir=${ANDROID_HOME}" > local.properties
           echo "ndk.dir=${ANDROID_HOME}/ndk/21.4.7075529" >> local.properties
       - name: Fetch Status

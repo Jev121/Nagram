@@ -100,4 +100,5 @@
     <string name="ExternalStickerCacheRefresh">刷新外部缓存</string>
     <string name="ExternalStickerCacheDelete">删除外部缓存</string>
     <string name="ProviderTranSmartTranslate">腾讯交互翻译</string>
+    <string name="ProviderLibreTranslateTranslate">LibreTranslate</string>
 </resources>

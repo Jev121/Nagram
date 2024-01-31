@@ -103,4 +103,5 @@
     <string name="ExternalStickerCacheRefresh">Refresh External Cache</string>
     <string name="ExternalStickerCacheDelete">Delete External Cache</string>
     <string name="ProviderTranSmartTranslate">TranSmart Translator</string>
+    <string name="ProviderLibreTranslateTranslate">LibreTranslate</string>
 </resources>

@@ -299,6 +299,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - native
+      - v2ray
+      - shadowsocks
+      - shadowsocksr
     strategy:
       matrix:
         flavor:
@@ -326,6 +329,9 @@ jobs:
           sed -i 's/\/\///g' settings.gradle
           git submodule status TMessagesProj/jni/ffmpeg > ffmpeg_status
           git submodule status TMessagesProj/jni/boringssl > boringssl_status
+          git submodule status ss-rust/src/main/rust/shadowsocks-rust > shadowsocks_status
+          git submodule status 'ssr-libev/*' > shadowsocksr_status
+          git submodule status v2ray > v2ray_status
       - name: Native Cache (armeabi-v7a)
         uses: actions/cache@v2
         with:
@@ -338,6 +344,24 @@ jobs:
           path: |
             TMessagesProj/src/main/libs
           key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'boringssl_status') }}-arm64-v8a
+      - name: V2ray Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            TMessagesProj/libs/libv2ray.aar
+          key: ${{ hashFiles('bin/libs/v2ray/*', 'v2ray_status') }}
+      - name: Shadowsocks Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            TMessagesProj/libs/ss-rust-release.aar
+          key: ${{ hashFiles('shadowsocks_status') }}
+      - name: ShadowsocksR Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            TMessagesProj/libs/ssr-libev-release.aar
+          key: ${{ hashFiles('shadowsocksr_status') }}
       - name: Configure Gradle
         run: |
           sed -i -e "s/16384/6144/g" gradle.properties
@@ -368,7 +392,7 @@ jobs:
       - build
       - telegram-bot-api
     steps:
-      - name: Donwload Artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@v2
         with:
           path: artifacts

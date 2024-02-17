@@ -63,6 +63,7 @@ import javax.net.ssl.SSLException;
 
 import cn.hutool.core.util.StrUtil;
 import tw.nekomimi.nekogram.NekoConfig;
+import tw.nekomimi.nekogram.parts.ProxySwitcher;
 import tw.nekomimi.nekogram.utils.DnsFactory;
 import tw.nekomimi.nekogram.ErrorDatabase;
 
@@ -499,6 +500,9 @@ SharedPreferences mainPreferences;
             SharedConfig.loadProxyList();
 
             if (SharedConfig.proxyEnabled && SharedConfig.currentProxy != null) {
+                if (SharedConfig.currentProxy instanceof SharedConfig.ExternalSocks5Proxy) {
+                    ((SharedConfig.ExternalSocks5Proxy) SharedConfig.currentProxy).start();
+                }
                 native_setProxySettings(currentAccount, SharedConfig.currentProxy.address, SharedConfig.currentProxy.port, SharedConfig.currentProxy.username, SharedConfig.currentProxy.password, SharedConfig.currentProxy.secret);
             }
             checkConnection();
@@ -652,6 +656,7 @@ SharedPreferences mainPreferences;
         try {
             AndroidUtilities.runOnUIThread(() -> {
                 getInstance(currentAccount).connectionState = state;
+                ProxySwitcher.didReceivedNotification(state);
                 AccountInstance.getInstance(currentAccount).getNotificationCenter().postNotificationName(NotificationCenter.didUpdateConnectionState);
             });
         } catch (Exception e) {

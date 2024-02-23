@@ -155,14 +155,14 @@ android {
         unitTests.includeAndroidResources = true
     }
 
-    // signingConfigs {
-    //     release {
-    //         storeFile project.file("release.keystore")
-    //         storePassword keystorePwd
-    //         keyAlias alias
-    //         keyPassword pwd
-    //     }
-    // }
+    signingConfigs {
+        release {
+            storeFile project.file("release.keystore")
+            storePassword keystorePwd
+            keyAlias alias
+            keyPassword pwd
+        }
+    }
 
     buildTypes {
         debug {
@@ -171,7 +171,7 @@ android {
             jniDebuggable true
             multiDexEnabled true
             zipAlignEnabled true
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
             ndk.debugSymbolLevel = "FULL"
         }
 
@@ -184,7 +184,7 @@ android {
             zipAlignEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ["release", "debug"]
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
 
             buildConfigField "int", "IS_NO_GCM", "1"
         }
@@ -198,7 +198,7 @@ android {
             zipAlignEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ["release", "debug"]
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
 
         foss {
@@ -307,7 +307,12 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = outputFileName.replace("TMessagesProj", "Nagram-v" + versionName).replace("-release", "")
+            String gramName = "Nagram"
+            String first = String.format("%s-v%s(%s)", gramName, versionName, versionCode)
+            String name = outputFileName.replace("TMessagesProj", first)
+            name = name.replace("-release", "")
+            // name = name.replace("-mini", "")
+            outputFileName = name
         }
     }
 

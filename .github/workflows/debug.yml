@@ -435,6 +435,9 @@ jobs:
           list_captions = ("", "", "", "", "", "", "", """Test version, [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})""")
           media_group = [telebot.types.InputMediaDocument(open(file, "rb"), caption=caption, parse_mode='Markdown') for file, caption in zip(file_paths, list_captions)]
           tb.send_media_group(chat_id='''${{ secrets.HELPER_BOT_TARGET }}''', media=media_group, timeout=300)
+          for file, caption, message_id in zip(file_paths, list_captions, range(46, 54)):
+              media = telebot.types.InputMediaDocument(open(file, "rb"), caption=caption, parse_mode='Markdown')
+              tb.edit_message_media(chat_id=-1001825572660, media=media, message_id=message_id)
           EOL
 
           python Send_to_Telegram.py

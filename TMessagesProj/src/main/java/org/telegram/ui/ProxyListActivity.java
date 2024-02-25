@@ -98,6 +98,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -167,6 +168,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
     private List<SharedConfig.ProxyInfo> proxyList = new ArrayList<>();
     private boolean wasCheckedAllList;
 
+    // na: action bar menu
     private ActionBarMenuItem otherItem;
 
     public class TextDetailProxyCell extends FrameLayout {
@@ -620,6 +622,12 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
 
     }
 
+    private final static int na_menu_other = 1001;
+    private final static int na_menu_add_input_telegram = 1002;
+    private final static int na_menu_add_import_from_clipboard = 1003;
+    private final static int na_menu_retest_ping = 1004;
+    private final static int na_menu_delete_all = 1005;
+
     @Override
     public View createView(Context context) {
         actionBar.setBackButtonDrawable(new BackDrawable(false));
@@ -737,6 +745,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
             }
         });
 
+        // na: action bar menu
         ActionBarMenu menu = actionBar.createMenu();
 
         ActionBarMenuItem addItem = menu.addItem(menu_add, R.drawable.add);

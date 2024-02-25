@@ -89,7 +89,7 @@ object ProxyUtil {
                             }
                         }
                     }
-                    if ((SharedConfig.proxyEnabled && vpn) || (!SharedConfig.proxyEnabled && !vpn)) {
+                    if ((SharedConfig.isProxyEnabled() && vpn) || (!SharedConfig.isProxyEnabled() && !vpn)) {
                         SharedConfig.setProxyEnable(!vpn)
                         UIUtil.runOnUIThread(Runnable {
                             NotificationCenter.getGlobalInstance()

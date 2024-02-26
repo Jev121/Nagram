@@ -98,7 +98,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
@@ -627,6 +626,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
     private final static int na_menu_add_import_from_clipboard = 1003;
     private final static int na_menu_retest_ping = 1004;
     private final static int na_menu_delete_all = 1005;
+    private final static int na_menu_delete_unavailable = 1006;
 
     @Override
     public View createView(Context context) {

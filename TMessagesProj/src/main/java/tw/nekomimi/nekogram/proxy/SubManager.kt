@@ -29,9 +29,8 @@ object SubManager {
                 enable = public?.enable ?: true
 
                 urls = listOf(
-                        "https://nekox.pages.dev/proxy_list_pro",  // Note: NO DoH apply to here and neko.services now.
-                        "https://github.com/NekoX-Dev/ProxyList/blob/master/proxy_list_pro@js-file-line\">@<",
-                        "https://api.github.com/repos/NekoX-Dev/ProxyList/contents/proxy_list_pro?ref=master@\"content\": \"@\"",
+                        "https://raw.githubusercontent.com/LiuYi0526/ProxyList/master/proxy_list_pro",  // Note: NO DoH apply to here and neko.services now.
+                        "https://cdn.jsdelivr.net/gh/LiuYi0526/ProxyList@master/proxy_list_pro",
                 )
 
                 id = publicProxySubID

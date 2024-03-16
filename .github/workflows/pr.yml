@@ -295,7 +295,7 @@ jobs:
     strategy:
       matrix:
         flavor:
-#          - FullRelease
+          - FullRelease
           - MiniRelease
     steps:
       - name: Checkout
@@ -371,5 +371,5 @@ jobs:
           echo "APK=$APK" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.flavor }}
+          name: Debug
           path: ${{ env.APK }}

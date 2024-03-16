@@ -307,8 +307,6 @@ jobs:
         flavor:
           - FullRelease
           - MiniRelease
-          - FullReleaseNoGcm
-          - MiniReleaseNoGcm
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -374,7 +372,6 @@ jobs:
       - name: Debug Build
         run: |
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
-          export DEBUG_BUILD=true
           ./gradlew TMessagesProj:assemble${{ matrix.flavor }}
 
           APK=$(find TMessagesProj/build/outputs/apk -name '*arm64-v8a*.apk')
@@ -386,8 +383,8 @@ jobs:
           path: ${{ env.APK }}
   upload:
     name: Upload debug
+    if: github.event.inputs.upload != 'y'
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, 'bump version') }}
     needs:
       - build
       - telegram-bot-api
@@ -401,6 +398,10 @@ jobs:
         with:
           name: telegram-bot-api-binary
           path: .
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
       - name: Setup Python telebot
         run: |
           pip install telebot
@@ -419,10 +420,6 @@ jobs:
           export mini32=$(find artifacts -name "*mini-armeabi-v7a.apk")
           export full64=$(find artifacts -name "*full-arm64-v8a.apk")
           export full32=$(find artifacts -name "*full-armeabi-v7a.apk")
-          export mini64nogcm=$(find artifacts -name "*mini-arm64-v8aNoGcm.apk")
-          export mini32nogcm=$(find artifacts -name "*mini-armeabi-v7aNoGcm.apk")
-          export full64nogcm=$(find artifacts -name "*full-arm64-v8aNoGcm.apk")
-          export full32nogcm=$(find artifacts -name "*full-armeabi-v7aNoGcm.apk")
 
           touch ./Send_to_Telegram.py
           sudo cat >./Send_to_Telegram.py <<EOL
@@ -430,13 +427,13 @@ jobs:
           from telebot import apihelper
           apihelper.API_URL = "http://localhost:8081/bot{0}/{1}"
           tb = telebot.TeleBot('''${{ secrets.HELPER_BOT_TOKEN }}''')
-          file_paths = ("""${mini64}""", """${mini32}""", """${full64}""", """${full32}""", """${mini64nogcm}""", """${mini32nogcm}""", """${full64nogcm}""", """${full32nogcm}""")
+          file_paths = ("""${mini64}""", """${mini32}""", """${full64}""", """${full32}""")
           print(file_paths)
-          list_captions = ("", "", "", "", "", "", "", """Test version, [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})""")
-          for file, caption, message_id in zip(file_paths, list_captions, range(46, 54)):
+          list_captions = ("", "", "", """Test version, [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})""")
+          for file, caption, message_id in zip(file_paths, list_captions, range(46, 50)):
             media = telebot.types.InputMediaDocument(open(file, "rb"), caption=caption, parse_mode='Markdown')
             tb.edit_message_media(chat_id=-1001825572660, media=media, message_id=message_id)
-          tb.copy_messages(chat_id='''${{ secrets.HELPER_BOT_TARGET }}''', message_ids=list(range(46, 54)), from_chat_id=-1001825572660)
+          tb.copy_messages(chat_id='''${{ secrets.HELPER_BOT_TARGET }}''', message_ids=list(range(46, 50)), from_chat_id=-1001825572660)
           EOL
 
           python Send_to_Telegram.py

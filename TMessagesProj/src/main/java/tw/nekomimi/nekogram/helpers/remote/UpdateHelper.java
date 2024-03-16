@@ -80,8 +80,8 @@ public class UpdateHelper extends BaseRemoteHelper {
                             string.getInt("version_code"),
                             string.getInt("sticker"),
                             string.getInt("message"),
-                            jsonToMap(string.getJSONObject("gcm")),
-                            jsonToMap(string.getJSONObject("nogcm")),
+                            jsonToMap(string.getJSONObject("full")),
+                            jsonToMap(string.getJSONObject("mini")),
                             string.getString("url")
                     );
                     break;
@@ -148,10 +148,10 @@ public class UpdateHelper extends BaseRemoteHelper {
         if (update.sticker != null) {
             ids.put("sticker", update.sticker);
         }
-        if (update.nogcm != null && BuildVars.isNoGCM) {
-            ids.put("file", getPreferredAbiFile(update.nogcm));
-        } else if (update.gcm != null) {
-            ids.put("file", getPreferredAbiFile(update.gcm));
+        if (update.mini != null && BuildVars.isMini) {
+            ids.put("file", getPreferredAbiFile(update.mini));
+        } else if (update.full != null) {
+            ids.put("file", getPreferredAbiFile(update.full));
         }
 
         if (ids.isEmpty()) {
@@ -189,18 +189,18 @@ public class UpdateHelper extends BaseRemoteHelper {
         public Integer versionCode;
         public Integer sticker;
         public Integer message;
-        public Map<String, Integer> gcm;
-        public Map<String, Integer> nogcm;
+        public Map<String, Integer> full;
+        public Map<String, Integer> mini;
         public String url;
 
-        public Update(Boolean canNotSkip, String version, int versionCode, int sticker, int message, Map<String, Integer> gcm, Map<String, Integer> nogcm, String url) {
+        public Update(Boolean canNotSkip, String version, int versionCode, int sticker, int message, Map<String, Integer> full, Map<String, Integer> mini, String url) {
             this.canNotSkip = canNotSkip;
             this.version = version;
             this.versionCode = versionCode;
             this.sticker = sticker;
             this.message = message;
-            this.gcm = gcm;
-            this.nogcm = nogcm;
+            this.full = full;
+            this.mini = mini;
             this.url = url;
         }
     }

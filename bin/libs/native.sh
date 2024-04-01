@@ -2,11 +2,11 @@
 
 source "bin/init/env.sh"
 
-OUT=TMessagesProj/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
+OUT=TMessagesProj/build/intermediates/merged_native_libs/miniRelease/mergeMiniReleaseNativeLibs/out/lib
 DIR=TMessagesProj/src/main/libs
 
 export COMPILE_NATIVE=1
-./gradlew TMessagesProj:stripReleaseDebugSymbols || exit 1
+./gradlew TMessagesProj:stripMiniReleaseDebugSymbols || exit 1
 
 function install() {
   local ABI="$1"

@@ -224,6 +224,7 @@ import kotlin.text.StringsKt;
 import tw.nekomimi.nekogram.InternalUpdater;
 import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import tw.nekomimi.nekogram.helpers.remote.EmojiHelper;
+import tw.nekomimi.nekogram.helpers.remote.PagePreviewRulesHelper;
 import tw.nekomimi.nekogram.helpers.remote.PeerColorHelper;
 import tw.nekomimi.nekogram.helpers.remote.UpdateHelper;
 import tw.nekomimi.nekogram.helpers.remote.WallpaperHelper;
@@ -1061,6 +1062,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         EmojiHelper.getInstance().checkEmojiPacks();
         WallpaperHelper.getInstance().checkWallPaper();
         PeerColorHelper.getInstance().checkPeerColor();
+        PagePreviewRulesHelper.getInstance().checkPagePreviewRules();
         BackupAgent.requestBackup(this);
 
         RestrictedLanguagesSelectActivity.checkRestrictedLanguages(false);

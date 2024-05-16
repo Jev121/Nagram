@@ -2320,7 +2320,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             } else if (path.startsWith("addemoji/")) {
                                                 emoji = path.replace("addemoji/", "");
                                             } else if (path.startsWith("nasettings/")) {
-                                                SettingsHelper.processDeepLink(data, fragment -> {
+                                                SettingsHelper.processDeepLink(this, data, fragment -> {
                                                     AndroidUtilities.runOnUIThread(() -> presentFragment(fragment, false, false));
                                                     if (AndroidUtilities.isTablet()) {
                                                         actionBarLayout.showLastFragment();
@@ -2803,7 +2803,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                     } else if (url.startsWith("tg:neko") || url.startsWith("tg://neko")) {
                                         url = url.replace("tg:neko", "tg://t.me/nasettings").replace("tg://neko", "tg://t.me/nasettings");
                                         data = Uri.parse(url);
-                                        SettingsHelper.processDeepLink(data, fragment -> {
+                                        SettingsHelper.processDeepLink(this, data, fragment -> {
                                             AndroidUtilities.runOnUIThread(() -> presentFragment(fragment, false, false));
                                             if (AndroidUtilities.isTablet()) {
                                                 actionBarLayout.showLastFragment();

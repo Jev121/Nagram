@@ -30639,6 +30639,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             }
             case OPTION_FORWARD: {
                 noForwardQuote = false; //fuck
+                if (messagePreviewParams != null) {
+                    messagePreviewParams.setHideForwardSendersName(noForwardQuote);
+                }
                 forwardingMessage = selectedObject;
                 forwardingMessageGroup = selectedObjectGroup;
                 Bundle args = new Bundle();
@@ -39050,6 +39053,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         // should hide shit action bar after done
         if (id == nkbtn_forward_noquote) {
             noForwardQuote = id == nkbtn_forward_noquote;
+            if (messagePreviewParams != null) {
+                messagePreviewParams.setHideForwardSendersName(noForwardQuote);
+            }
             openForward(true);
         } else if (id == nkactionbarbtn_reply) {
             MessageObject messageObject = null;
@@ -39275,6 +39281,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             }
             case nkbtn_forward_noquote: {
                 noForwardQuote = true;
+                if (messagePreviewParams != null) {
+                    messagePreviewParams.setHideForwardSendersName(noForwardQuote);
+                }
                 forwardingMessage = selectedObject;
                 forwardingMessageGroup = selectedObjectGroup;
                 Bundle args = new Bundle();

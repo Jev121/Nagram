@@ -311,6 +311,7 @@ import tw.nekomimi.nekogram.BackButtonMenuRecent;
 import tw.nekomimi.nekogram.helpers.ProfileDateHelper;
 import tw.nekomimi.nekogram.helpers.SettingsHelper;
 import tw.nekomimi.nekogram.helpers.SettingsSearchResult;
+import tw.nekomimi.nekogram.settings.RegexFiltersSettingActivity;
 import tw.nekomimi.nekogram.transtale.popupwrapper.AutoTranslatePopupWrapper;
 import tw.nekomimi.nekogram.ui.BottomBuilder;
 import tw.nekomimi.nekogram.InternalUpdater;
@@ -546,6 +547,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private final static int start_secret_chat = 20;
     private final static int gallery_menu_save = 21;
     private final static int event_log = 102;
+    private final static int message_filter = 103;
     private final static int view_discussion = 22;
     private final static int delete_topic = 23;
 
@@ -2319,6 +2321,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     leaveChatPressed();
                 } else if (id == event_log) {
                     presentFragment(new ChannelAdminLogActivity(currentChat));
+                } else if (id == message_filter){
+                    presentFragment(new RegexFiltersSettingActivity(chatId != 0 ? -chatId : userId));
                 } else if (id == aliasChannelName) {
                     setChannelAlias();
                 } else if (id == delete_topic) {
@@ -10267,6 +10271,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (isBot || getContactsController().contactsDict.get(userId) == null) {
                     if (MessagesController.isSupportUser(user)) {
                         createAutoTranslateItem(userId);
+                        createMessageFilterItem();
                         if (userBlocked) {
                             otherItem.addSubItem(block_contact, R.drawable.msg_block, LocaleController.getString("Unblock", R.string.Unblock));
                         }
@@ -10276,6 +10281,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             createAutoDeleteItem(context);
                         }
                         createAutoTranslateItem(userId);
+                        createMessageFilterItem();
                         otherItem.addSubItem(add_shortcut, R.drawable.msg_home, LocaleController.getString("AddShortcut", R.string.AddShortcut));
                         if (isBot) {
                             otherItem.addSubItem(share, R.drawable.msg_share, LocaleController.getString("BotShare", R.string.BotShare));
@@ -10300,6 +10306,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         createAutoDeleteItem(context);
                     }
                     createAutoTranslateItem(userId);
+                    createMessageFilterItem();
 
                     if (!TextUtils.isEmpty(user.phone)) {
                         otherItem.addSubItem(share_contact, R.drawable.msg_share, LocaleController.getString("ShareContact", R.string.ShareContact));
@@ -10330,6 +10337,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 createAutoDeleteItem(context);
             }
             createAutoTranslateItem(-chatId, topicId, !isTopic || chatInfo == null || !chatInfo.participants_hidden || ChatObject.hasAdminRights(chat));
+            createMessageFilterItem();
             if (chat != null && (chat.has_link || (chatInfo != null && chatInfo.linked_chat_id != 0))) {
                 String text;
                 if (!chat.megagroup) {
@@ -10580,6 +10588,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         var autoTranslatePopupWrapper = new AutoTranslatePopupWrapper(ProfileActivity.this, otherItem.getPopupLayout().getSwipeBack(), dialogId, topicId, getResourceProvider());
         otherItem.addSwipeBackItem(R.drawable.msg_translate, null, LocaleController.getString("AutoTranslate", R.string.AutoTranslate), autoTranslatePopupWrapper.windowLayout);
         if (gap) otherItem.addColoredGap();
+    }
+
+    private void createMessageFilterItem() {
+        otherItem.addSubItem(message_filter, R.drawable.hide_title, LocaleController.getString("RegexFilters", R.string.RegexFilters));
     }
 
     private void setAutoDeleteHistory(int time, int action) {

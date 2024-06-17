@@ -985,10 +985,84 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
             return false;
         });
 
-        if (alert != null) {
-            AlertUtil.showSimpleAlert(context, alert);
-            alert = null;
-        }
+        ActionBarMenu actionMode = actionBar.createActionMode();
+        selectedCountTextView = new NumberTextView(actionMode.getContext());
+        selectedCountTextView.setTextSize(18);
+        selectedCountTextView.setTypeface(AndroidUtilities.bold());
+        selectedCountTextView.setTextColor(Theme.getColor(Theme.key_actionBarActionModeDefaultIcon));
+        actionMode.addView(selectedCountTextView, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f, 72, 0, 0, 0));
+        selectedCountTextView.setOnTouchListener((v, event) -> true);
+
+        shareMenuItem = actionMode.addItemWithWidth(MENU_SHARE, R.drawable.msg_share, AndroidUtilities.dp(54));
+        deleteMenuItem = actionMode.addItemWithWidth(MENU_DELETE, R.drawable.msg_delete, AndroidUtilities.dp(54));
+
+        actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
+            @Override
+            public void onItemClick(int id) {
+                switch (id) {
+                    case -1:
+                        if (selectedItems.isEmpty()) {
+                            finishFragment();
+                        } else {
+                            listAdapter.clearSelected();
+                        }
+                        break;
+                    case MENU_DELETE:
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
+                        builder.setMessage(LocaleController.getString(selectedItems.size() > 1 ? R.string.DeleteProxyMultiConfirm : R.string.DeleteProxyConfirm));
+                        builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
+                        builder.setTitle(LocaleController.getString(R.string.DeleteProxyTitle));
+                        builder.setPositiveButton(LocaleController.getString(R.string.Delete), (dialog, which) -> {
+                            for (SharedConfig.ProxyInfo info : selectedItems) {
+                                SharedConfig.deleteProxy(info);
+                            }
+                            if (SharedConfig.currentProxy == null) {
+                                useProxyForCalls = false;
+                                useProxySettings = false;
+                            }
+                            NotificationCenter.getGlobalInstance().removeObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
+                            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
+                            NotificationCenter.getGlobalInstance().addObserver(ProxyListActivity.this, NotificationCenter.proxySettingsChanged);
+                            updateRows(true);
+                            if (listAdapter != null) {
+                                if (SharedConfig.currentProxy == null) {
+                                    listAdapter.notifyItemChanged(useProxyRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
+                                    listAdapter.notifyItemChanged(callsRow, ListAdapter.PAYLOAD_CHECKED_CHANGED);
+                                }
+                                listAdapter.clearSelected();
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        showDialog(dialog);
+                        TextView button = (TextView) dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                        if (button != null) {
+                            button.setTextColor(Theme.getColor(Theme.key_text_RedBold));
+                        }
+                        break;
+                    case MENU_SHARE:
+                        StringBuilder links = new StringBuilder();
+                        for (SharedConfig.ProxyInfo info : selectedItems) {
+                            if (links.length() > 0) {
+                                links.append("\n\n");
+                            }
+                            links.append(info.getLink());
+                        }
+
+                        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                        shareIntent.setType("text/plain");
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, links.toString());
+                        Intent chooserIntent = Intent.createChooser(shareIntent, LocaleController.getString(selectedItems.size() > 1 ? R.string.ShareLinks : R.string.ShareLink));
+                        chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(chooserIntent);
+
+                        if (listAdapter != null) {
+                            listAdapter.clearSelected();
+                        }
+                        break;
+                }
+            }
+        });
+
         return fragmentView;
     }
 

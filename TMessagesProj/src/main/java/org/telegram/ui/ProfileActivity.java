@@ -4314,7 +4314,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? (!SharedConfig.isUsingCamera2(currentAccount) ? "Use Camera 2 API" : "Use old Camera 1 API") : null,
                                 BuildVars.DEBUG_VERSION ? "Clear bot biometry data" : null,
                                 BuildVars.DEBUG_PRIVATE_VERSION ? "Clear all login tokens" : null,
-                                SharedConfig.canBlurChat() && Build.VERSION.SDK_INT >= 31 ? (SharedConfig.useNewBlur ? "back to cpu blur" : "use new gpu blur") : null
+                                SharedConfig.canBlurChat() && Build.VERSION.SDK_INT >= 31 ? (SharedConfig.useNewBlur ? "back to cpu blur" : "use new gpu blur") : null,
+                                BuildVars.DEBUG_PRIVATE_VERSION ? (SharedConfig.botTabs3DEffect ? "disable tabs 3d effect" : "enable tabs 3d effect") : null
                         };
 
                         builder.setItems(items, (dialog, which) -> {
@@ -4607,7 +4608,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             } else if (which == 23) {
                                 SharedConfig.toggleSurfaceInStories();
                                 for (int i = 0; i < getParentLayout().getFragmentStack().size(); i++) {
-                                    getParentLayout().getFragmentStack().get(i).clearStoryViewers();
+                                    getParentLayout().getFragmentStack().get(i).clearSheets();
                                 }
                             } else if (which == 24) {
                                 SharedConfig.togglePhotoViewerBlur();
@@ -4623,6 +4624,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 AuthTokensHelper.clearLogInTokens();
                             } else if (which == 30) {
                                 SharedConfig.toggleUseNewBlur();
+                            } else if (which == 31) {
+                                SharedConfig.setBotTabs3DEffect(!SharedConfig.botTabs3DEffect);
                             }
                         });
                         builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
@@ -6273,7 +6276,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     setAvatarCell.getImageView().playAnimation();
                 }
             } else {
-                if (playProfileAnimation != 0 && parentLayout.getFragmentStack().get(parentLayout.getFragmentStack().size() - 2) instanceof ChatActivity) {
+                if (playProfileAnimation != 0 && parentLayout != null && parentLayout.getFragmentStack() != null && parentLayout.getFragmentStack().size() >= 2 && parentLayout.getFragmentStack().get(parentLayout.getFragmentStack().size() - 2) instanceof ChatActivity) {
                     finishFragment();
                 } else {
                     TLRPC.User user = getMessagesController().getUser(userId);
@@ -8352,7 +8355,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     }
 
     public boolean onBackPressed() {
-        if (closeStoryViewer()) {
+        if (closeSheet()) {
             return false;
         }
         return actionBar.isEnabled() && (sharedMediaRow == -1 || sharedMediaLayout == null || !sharedMediaLayout.closeActionMode());
@@ -9149,10 +9152,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (!getMessagesController().premiumFeaturesBlocked()) {
                     businessRow = rowCount++;
                 }
-                if (premiumRow >= -1 || starsRow >= 0 || businessRow >= 0) {
+                if (!getMessagesController().premiumPurchaseBlocked()) {
                     premiumGiftingRow = rowCount++;
                 }
-                if (premiumRow >= 0 || premiumGiftingRow >= 0) {
+                if (premiumRow >= 0 || starsRow >= 0 || businessRow >= 0 || premiumGiftingRow >= 0) {
                     premiumSectionsRow = rowCount++;
                 }
                 helpHeaderRow = rowCount++;
@@ -10082,8 +10085,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 getFileLoader().loadFile(imageLocation, chat, null, FileLoader.PRIORITY_LOW, 1);
             }
             avatarImage.getImageReceiver().setVisible(!PhotoViewer.isShowingImage(photoBig) && (getLastStoryViewer() == null || getLastStoryViewer().transitionViewHolder.view != avatarImage), storyView != null);
-            if (chat.photo != null && chat.photo.dc_id != 0) {
+            dc = chatInfo != null ? chatInfo.stats_dc != 0 ? chatInfo.stats_dc : 0 : 0;
+            if (dc == 0 && chat.photo != null && chat.photo.dc_id != 0) {
                 dc = chat.photo.dc_id;
+            }
+            if (dc != 0) {
                 idTextView.setText("ID: " + chatId + ", DC: " + dc);
             } else {
                 idTextView.setText("ID: " + chatId);
@@ -13573,11 +13579,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     //  onlineTextView[1].setAlpha(1f - expandProgress);
                     onlineTextView[1].setTranslationX(onlineX + customPhotoOffset);
                     avatarContainer2.invalidate();
+                    if (showStatusButton != null) {
+                        showStatusButton.setAlpha2(1f - currentExpandAnimatorValue);
+                    }
                 }
             } else {
                 if (onlineTextView[2] != null) {
                     onlineTextView[2].setAlpha(0);
                     onlineTextView[3].setAlpha(0);
+                }
+                if (showStatusButton != null) {
+                    showStatusButton.setAlpha2(1f);
                 }
             }
 
@@ -13586,12 +13598,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (onlineTextView[2] != null) {
                     onlineTextView[2].setAlpha(photoDescriptionProgress);
                 }
+                if (showStatusButton != null) {
+                    showStatusButton.setAlpha2(1f - photoDescriptionProgress);
+                }
             } else {
                 if (onlineTextView[2] != null) {
                     onlineTextView[2].setAlpha(0);
                 }
+                if (showStatusButton != null) {
+                    showStatusButton.setAlpha2(1f);
+                }
             }
-
         }
     }
 
@@ -13788,6 +13805,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
 
         @Override
         public void draw(@NonNull Canvas canvas) {
+            final float alpha = this.alpha * this.alpha2;
             if (alpha <= 0) return;
             AndroidUtilities.rectTmp.set(getBounds());
             canvas.save();
@@ -13804,10 +13822,15 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             canvas.restore();
         }
 
-        private float alpha = 1f;
+        private float alpha = 1f, alpha2 = 1f;
         @Override
         public void setAlpha(int alpha) {
             this.alpha = alpha / 255f;
+            invalidateSelf();
+        }
+
+        public void setAlpha2(float alpha) {
+            this.alpha2 = alpha;
             invalidateSelf();
         }
 

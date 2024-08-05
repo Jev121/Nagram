@@ -1246,7 +1246,7 @@ public class AlertsCreator {
         }
         long inlineReturn = (fragment instanceof ChatActivity) ? ((ChatActivity) fragment).getInlineReturn() : 0;
         if (Browser.isInternalUrl(url, null) || !ask || NekoConfig.skipOpenLinkConfirm.Bool()) {
-            Browser.openUrl(fragment.getParentActivity(), Uri.parse(url), inlineReturn == 0, tryTelegraph, forceNotInternalForApps && checkInternalBotApp(url), progress);
+            Browser.openUrl(fragment.getParentActivity(), Uri.parse(url), inlineReturn == 0, tryTelegraph, forceNotInternalForApps && checkInternalBotApp(url), progress, null);
         } else {
             String urlFinal = url;
 //            if (punycode) {
@@ -3102,7 +3102,7 @@ public class AlertsCreator {
             } else if (type == 3) {
                 num += 9;
             }
-            button.setText(LocaleController.getInstance().formatterScheduleSend[num].format(time));
+            button.setText(LocaleController.getInstance().getFormatterScheduleSend(num).format(time));
         }
         if (infoText != null) {
             int diff = (int) ((time - systemTime) / 1000);
@@ -3349,16 +3349,16 @@ public class AlertsCreator {
                 calendar.setTimeInMillis(date);
                 int year = calendar.get(Calendar.YEAR);
                 LocaleController loc = LocaleController.getInstance();
-                final String week = loc.formatterWeek.format(date) + ", ";
+                final String week = loc.getFormatterWeek().format(date) + ", ";
                 
                 if (year == currentYear) {
                     return (
-                        LocaleController.getInstance().formatterWeek.format(date) +
+                        LocaleController.getInstance().getFormatterWeek().format(date) +
                         ", " +
-                        LocaleController.getInstance().formatterScheduleDay.format(date)
+                        LocaleController.getInstance().getFormatterScheduleDay().format(date)
                     );
                 } else {
-                    return week + loc.formatterScheduleYear.format(date);
+                    return week + loc.getFormatterScheduleYear().format(date);
                 }
             }
         });
@@ -3537,9 +3537,9 @@ public class AlertsCreator {
                 calendar.setTimeInMillis(date);
                 int year = calendar.get(Calendar.YEAR);
                 if (year == currentYear) {
-                    return LocaleController.getInstance().formatterScheduleDay.format(date);
+                    return LocaleController.getInstance().getFormatterScheduleDay().format(date);
                 } else {
-                    return LocaleController.getInstance().formatterScheduleYear.format(date);
+                    return LocaleController.getInstance().getFormatterScheduleYear().format(date);
                 }
             }
         });
@@ -3967,11 +3967,11 @@ public class AlertsCreator {
                 int year = calendar.get(Calendar.YEAR);
                 int yearDay = calendar.get(Calendar.DAY_OF_YEAR);
                 if (year == currentYear && yearDay < currentDayYear + 7) {
-                    return LocaleController.getInstance().formatterWeek.format(date) + ", " + LocaleController.getInstance().formatterScheduleDay.format(date);
+                    return LocaleController.getInstance().getFormatterWeek().format(date) + ", " + LocaleController.getInstance().getFormatterScheduleDay().format(date);
                 } else if (year == currentYear) {
-                    return LocaleController.getInstance().formatterScheduleDay.format(date);
+                    return LocaleController.getInstance().getFormatterScheduleDay().format(date);
                 } else {
-                    return LocaleController.getInstance().formatterScheduleYear.format(date);
+                    return LocaleController.getInstance().getFormatterScheduleYear().format(date);
                 }
             }
         });
@@ -4837,20 +4837,20 @@ public class AlertsCreator {
             return;
         }
 
-        BottomBuilder builder = new BottomBuilder(context);
-        builder.getBuilder().setDimBehind(hideDim == null);
-        builder.getBuilder().setOnPreDismissListener(di -> {
+        BottomSheet.Builder builder = new BottomSheet.Builder(context, true, resourcesProvider);
+        builder.setDimBehind(hideDim == null);
+        builder.setOnPreDismissListener(di -> {
             if (hideDim != null) {
                 hideDim.run();
             }
         });
-        builder.addTitle(LocaleController.getString("ReportChat", R.string.ReportChat), true);
-        String[] items;
+        builder.setTitle(LocaleController.getString("ReportChat", R.string.ReportChat), true);
+        CharSequence[] items;
         int[] icons;
         int[] types;
         if (messageId != 0) {
 
-            items = new String[]{
+            items = new CharSequence[]{
                     LocaleController.getString("ReportChatSpam", R.string.ReportChatSpam),
                     LocaleController.getString("ReportChatViolence", R.string.ReportChatViolence),
                     LocaleController.getString("ReportChatChild", R.string.ReportChatChild),
@@ -4878,7 +4878,7 @@ public class AlertsCreator {
                     REPORT_TYPE_OTHER
             };
         } else {
-            items = new String[]{
+            items = new CharSequence[]{
                     LocaleController.getString("ReportChatSpam", R.string.ReportChatSpam),
                     LocaleController.getString("ReportChatFakeAccount", R.string.ReportChatFakeAccount),
                     LocaleController.getString("ReportChatViolence", R.string.ReportChatViolence),
@@ -4909,11 +4909,11 @@ public class AlertsCreator {
                     REPORT_TYPE_OTHER
             };
         }
-        builder.addItems(items, null, (i, text, cell) -> {
+        builder.setItems(items, icons, (dialogInterface, i) -> {
             int type = types[i];
             if (messageId == 0 && (type == REPORT_TYPE_SPAM || type == REPORT_TYPE_VIOLENCE || type == REPORT_TYPE_CHILD_ABUSE || type == REPORT_TYPE_PORNOGRAPHY || type == REPORT_TYPE_ILLEGAL_DRUGS || type == REPORT_TYPE_PERSONAL_DETAILS) && parentFragment instanceof ChatActivity) {
                 ((ChatActivity) parentFragment).openReportChat(type);
-                return Unit.INSTANCE;
+                return;
             } else if (messageId == 0 && (type == REPORT_TYPE_OTHER || type == REPORT_TYPE_FAKE_ACCOUNT) || messageId != 0 && type == REPORT_TYPE_OTHER) {
                 if (parentFragment instanceof ChatActivity) {
                     AndroidUtilities.requestAdjustNothing(parentFragment.getParentActivity(), parentFragment.getClassGuid());
@@ -4951,7 +4951,7 @@ public class AlertsCreator {
                         }
                     }
                 });
-                return Unit.INSTANCE;
+                return;
             }
             TLObject req;
             TLRPC.InputPeer peer = MessagesController.getInstance(UserConfig.selectedAccount).getInputPeer(dialog_id);
@@ -5016,7 +5016,9 @@ public class AlertsCreator {
                 }
                 req = request;
             }
-            ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> AlertUtil.showToast(error));
+            ConnectionsManager.getInstance(UserConfig.selectedAccount).sendRequest(req, (response, error) -> {
+
+            });
             if (parentFragment instanceof ChatActivity) {
                 UndoView undoView = ((ChatActivity) parentFragment).getUndoView();
                 if (undoView != null) {
@@ -5024,11 +5026,7 @@ public class AlertsCreator {
                 }
             } else {
                 BulletinFactory.of(parentFragment).createReportSent(resourcesProvider).show();
-
-                return Unit.INSTANCE;
             }
-
-            return Unit.INSTANCE;
         });
         BottomSheet sheet = builder.create();
         parentFragment.showDialog(sheet);
@@ -6419,7 +6417,7 @@ public class AlertsCreator {
             if (isActiveGiveawayAndOwner) {
                 TLRPC.TL_messageMediaGiveaway giveaway = (TLRPC.TL_messageMediaGiveaway) selectedMessage.messageOwner.media;
                 long untilDate = giveaway.until_date * 1000L;
-                giveawayEndDate = LocaleController.getInstance().formatterGiveawayMonthDayYear.format(new Date(untilDate));
+                giveawayEndDate = LocaleController.getInstance().getFormatterGiveawayMonthDayYear().format(new Date(untilDate));
                 isActiveGiveawayAndOwner = System.currentTimeMillis() < untilDate;
             }
         } else if (count == 1) {
@@ -6430,7 +6428,7 @@ public class AlertsCreator {
                     if (isActiveGiveawayAndOwner) {
                         TLRPC.TL_messageMediaGiveaway giveaway = (TLRPC.TL_messageMediaGiveaway) msg.messageOwner.media;
                         long untilDate = giveaway.until_date * 1000L;
-                        giveawayEndDate = LocaleController.getInstance().formatterGiveawayMonthDayYear.format(new Date(untilDate));
+                        giveawayEndDate = LocaleController.getInstance().getFormatterGiveawayMonthDayYear().format(new Date(untilDate));
                         isActiveGiveawayAndOwner = System.currentTimeMillis() < untilDate;
                     }
                 }

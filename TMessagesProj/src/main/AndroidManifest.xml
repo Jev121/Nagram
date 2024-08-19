@@ -140,7 +140,10 @@
         android:hasFragileUserData="true"
         android:preserveLegacyExternalStorage="true"
         android:allowAudioPlaybackCapture="true"
-        tools:replace="android:supportsRtl">
+        tools:replace="android:supportsRtl"
+        android:usesCleartextTraffic="true"
+    >
+        <!-- usesCleartextTraffic for browser supporting opening http:// links -->
 
         <meta-data android:name="io.sentry.auto-init" android:value="false" />
 
@@ -402,6 +405,12 @@
                 <data android:scheme="wss" />
                 <data android:scheme="trojan" />
 
+            </intent-filter>
+            <intent-filter android:icon="@mipmap/ic_launcher_nagram" android:roundIcon="@mipmap/ic_launcher_nagram_round" android:priority="1">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tonsite" />
             </intent-filter>
             <intent-filter android:icon="@mipmap/ic_launcher_nagram" android:roundIcon="@mipmap/ic_launcher_nagram_round" android:priority="1">
                 <action android:name="android.intent.action.VIEW" />

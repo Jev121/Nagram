@@ -99,11 +99,11 @@ interface Translator {
                 providerYouDao -> if (language == "zh") {
                     language = "zh-CHS"
                 }
-                providerDeepL -> language = language.toUpperCase()
+                providerDeepL -> language = language.uppercase()
                 providerMicrosoft,
                 providerGoogle,
                 providerGoogleCN -> if (language == "zh") {
-                    val countryUpperCase = country.toUpperCase()
+                    val countryUpperCase = country.uppercase()
                     if (countryUpperCase == "CN" || countryUpperCase == "DUANG") {
                         language = if (provider == providerMicrosoft) "zh-Hans" else "zh-CN"
                     } else if (countryUpperCase == "TW" || countryUpperCase == "HK") {
@@ -135,7 +135,7 @@ interface Translator {
             }
 
             if (language == "zh") {
-                val countryUpperCase = country.toUpperCase()
+                val countryUpperCase = country.uppercase()
                 if (countryUpperCase == "CN") {
                     return CCConverter.get(CCTarget.SP).convert(result)
                 } else if (countryUpperCase == "TW") {
@@ -185,7 +185,7 @@ interface Translator {
 
                 localeNames[i] = if (!full && i == 0) {
 
-                    LocaleController.getString("Default", R.string.Default) + " ( " + locales[i].getDisplayName(currLocale) + " )"
+                    LocaleController.getString(R.string.Default) + " ( " + locales[i].getDisplayName(currLocale) + " )"
 
                 } else {
 
@@ -197,7 +197,7 @@ interface Translator {
 
             if (!full) {
 
-                localeNames[localeNames.size - 1] = LocaleController.getString("More", R.string.More)
+                localeNames[localeNames.size - 1] = LocaleController.getString(R.string.More)
 
             }
 
@@ -226,13 +226,13 @@ interface Translator {
             val builder = PopupBuilder(anchor)
 
             builder.setItems(arrayOf(
-                    if (!input) LocaleController.getString("CCNo", R.string.CCNo) else null,
-                    LocaleController.getString("CCSC", R.string.CCSC),
-                    LocaleController.getString("CCSP", R.string.CCSP),
-                    LocaleController.getString("CCTC", R.string.CCTC),
-                    LocaleController.getString("CCHK", R.string.CCHK),
-                    LocaleController.getString("CCTT", R.string.CCTT),
-                    LocaleController.getString("CCJP", R.string.CCJP)
+                    if (!input) LocaleController.getString(R.string.CCNo) else null,
+                    LocaleController.getString(R.string.CCSC),
+                    LocaleController.getString(R.string.CCSP),
+                    LocaleController.getString(R.string.CCTC),
+                    LocaleController.getString(R.string.CCHK),
+                    LocaleController.getString(R.string.CCTT),
+                    LocaleController.getString(R.string.CCJP)
             )) { index: Int, _ ->
                 callback(when (index) {
                     1 -> CCTarget.SC.name

@@ -389,7 +389,9 @@ jobs:
       - build
       - telegram-bot-api
     steps:
-      - name: Download Artifacts
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Donwload Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts

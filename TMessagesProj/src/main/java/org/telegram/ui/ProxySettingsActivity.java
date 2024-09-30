@@ -63,7 +63,6 @@ import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.QRCodeBottomSheet;
-import org.telegram.ui.Components.RLottieDrawable;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -192,7 +191,7 @@ public class ProxySettingsActivity extends BaseFragment {
 
     @Override
     public View createView(Context context) {
-        actionBar.setTitle(LocaleController.getString("ProxyDetails", R.string.ProxyDetails));
+        actionBar.setTitle(LocaleController.getString(R.string.ProxyDetails));
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(false);
         if (AndroidUtilities.isTablet()) {
@@ -256,7 +255,7 @@ public class ProxySettingsActivity extends BaseFragment {
         });
 
         doneItem = actionBar.createMenu().addItemWithWidth(done_button, R.drawable.ic_ab_done, AndroidUtilities.dp(56));
-        doneItem.setContentDescription(LocaleController.getString("Done", R.string.Done));
+        doneItem.setContentDescription(LocaleController.getString(R.string.Done));
 
         fragmentView = new FrameLayout(context);
         FrameLayout frameLayout = (FrameLayout) fragmentView;
@@ -380,23 +379,23 @@ public class ProxySettingsActivity extends BaseFragment {
             inputFields[a].setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
             switch (a) {
                 case FIELD_IP:
-                    inputFields[a].setHintText(LocaleController.getString("UseProxyAddress", R.string.UseProxyAddress));
+                    inputFields[a].setHintText(LocaleController.getString(R.string.UseProxyAddress));
                     inputFields[a].setText(currentProxyInfo.address);
                     break;
                 case FIELD_PASSWORD:
-                    inputFields[a].setHintText(LocaleController.getString("UseProxyPassword", R.string.UseProxyPassword));
+                    inputFields[a].setHintText(LocaleController.getString(R.string.UseProxyPassword));
                     inputFields[a].setText(currentProxyInfo.password);
                     break;
                 case FIELD_PORT:
-                    inputFields[a].setHintText(LocaleController.getString("UseProxyPort", R.string.UseProxyPort));
+                    inputFields[a].setHintText(LocaleController.getString(R.string.UseProxyPort));
                     inputFields[a].setText("" + currentProxyInfo.port);
                     break;
                 case FIELD_USER:
-                    inputFields[a].setHintText(LocaleController.getString("UseProxyUsername", R.string.UseProxyUsername));
+                    inputFields[a].setHintText(LocaleController.getString(R.string.UseProxyUsername));
                     inputFields[a].setText(currentProxyInfo.username);
                     break;
                 case FIELD_SECRET:
-                    inputFields[a].setHintText(LocaleController.getString("UseProxySecret", R.string.UseProxySecret));
+                    inputFields[a].setHintText(LocaleController.getString(R.string.UseProxySecret));
                     inputFields[a].setText(currentProxyInfo.secret);
                     break;
                 case FIELD_REMARKS:
@@ -429,9 +428,9 @@ public class ProxySettingsActivity extends BaseFragment {
             bottomCells[i] = new TextInfoPrivacyCell(context);
             bottomCells[i].setBackground(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
             if (i == 0) {
-                bottomCells[i].setText(LocaleController.getString("UseProxyInfo", R.string.UseProxyInfo));
+                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyInfo));
             } else {
-                bottomCells[i].setText(LocaleController.getString("UseProxyTelegramInfo", R.string.UseProxyTelegramInfo) + "\n\n" + LocaleController.getString("UseProxyTelegramInfo2", R.string.UseProxyTelegramInfo2));
+                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyTelegramInfo) + "\n\n" + LocaleController.getString(R.string.UseProxyTelegramInfo2));
                 bottomCells[i].setVisibility(View.GONE);
             }
             linearLayout2.addView(bottomCells[i], LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
@@ -439,7 +438,7 @@ public class ProxySettingsActivity extends BaseFragment {
 
         pasteCell = new TextSettingsCell(fragmentView.getContext());
         pasteCell.setBackground(Theme.getSelectorDrawable(true));
-        pasteCell.setText(LocaleController.getString("PasteFromClipboard", R.string.PasteFromClipboard), false);
+        pasteCell.setText(LocaleController.getString(R.string.PasteFromClipboard), false);
         pasteCell.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4));
         pasteCell.setOnClickListener(v -> {
             if (pasteType != -1) {

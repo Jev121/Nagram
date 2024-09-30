@@ -372,7 +372,7 @@ jobs:
           APK=$(find TMessagesProj/build/outputs/apk -name '*arm64-v8a*.apk')
           APK=$(dirname $APK)
           echo "APK=$APK" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.flavor }}
           path: ${{ env.APK }}
@@ -384,8 +384,10 @@ jobs:
       - build
       - telegram-bot-api
     steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Donwload Artifacts
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Download Telegram Bot API Binary

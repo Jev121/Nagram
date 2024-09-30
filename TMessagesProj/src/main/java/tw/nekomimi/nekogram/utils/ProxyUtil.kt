@@ -563,8 +563,8 @@ object ProxyUtil {
 
                         builder.addItems(arrayOf(
 
-                                LocaleController.getString("SaveToGallery", R.string.SaveToGallery),
-                                LocaleController.getString("Cancel", R.string.Cancel)
+                                LocaleController.getString(R.string.SaveToGallery),
+                                LocaleController.getString(R.string.Cancel)
 
                         ), intArrayOf(
 
@@ -598,7 +598,7 @@ object ProxyUtil {
                                     }
 
                                     AndroidUtilities.addMediaToGallery(saveTo.path)
-                                    showToast(LocaleController.getString("PhotoSavedHint", R.string.PhotoSavedHint))
+                                    showToast(LocaleController.getString(R.string.PhotoSavedHint))
 
                                 }.onFailure {
                                     FileLog.e(it)
@@ -677,7 +677,7 @@ object ProxyUtil {
 
         } catch (e: Throwable) {
 
-            showToast(LocaleController.getString("NoQrFound", R.string.NoQrFound))
+            showToast(LocaleController.getString(R.string.NoQrFound))
 
         }
 
@@ -701,9 +701,9 @@ object ProxyUtil {
         builder.addTitle(text)
 
         builder.addItems(arrayOf(
-                LocaleController.getString("Open", R.string.Open),
-                LocaleController.getString("Copy", R.string.Copy),
-                LocaleController.getString("ShareQRCode", R.string.ShareQRCode)
+                LocaleController.getString(R.string.Open),
+                LocaleController.getString(R.string.Copy),
+                LocaleController.getString(R.string.ShareQRCode)
         ), intArrayOf(
                 R.drawable.baseline_open_in_browser_24,
                 R.drawable.baseline_content_copy_24,
@@ -713,7 +713,7 @@ object ProxyUtil {
                 0 -> Browser.openUrl(ctx, text)
                 1 -> {
                     AndroidUtilities.addToClipboard(text)
-                    showToast(LocaleController.getString("LinkCopied", R.string.LinkCopied))
+                    showToast(LocaleController.getString(R.string.LinkCopied))
                 }
                 else -> showQrDialog(ctx, text)
             }

@@ -12793,13 +12793,17 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     new SearchResult(501, LocaleController.getString(R.string.ChangePhoneNumber), 0, () -> presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_CHANGE_PHONE_NUMBER))),
                     new SearchResult(502, LocaleController.getString(R.string.AddAnotherAccount), 0, () -> {
                         int freeAccount;
+                        int freeAccounts = UserConfig.MAX_ACCOUNT_COUNT - SharedConfig.activeAccounts.size();
                         for (int account = 0; ; account++) {
                             if (!SharedConfig.activeAccounts.contains(account)) {
                                 freeAccount = account;
                                 break;
                             }
                         }
-                        if (freeAccount >= 0) {
+                        if (!UserConfig.hasPremiumOnAccounts()) {
+                            freeAccounts -= (UserConfig.MAX_ACCOUNT_COUNT - UserConfig.MAX_ACCOUNT_DEFAULT_COUNT);
+                        }
+                        if (freeAccounts > 0 && freeAccount >= 0) {
                             presentFragment(new LoginActivity(freeAccount));
                         }
                 }),

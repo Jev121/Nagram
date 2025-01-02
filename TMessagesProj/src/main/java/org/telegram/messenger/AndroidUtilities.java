@@ -226,6 +226,7 @@ import tw.nekomimi.nekogram.utils.EnvUtil;
 import tw.nekomimi.nekogram.utils.FileUtil;
 import tw.nekomimi.nekogram.utils.ProxyUtil;
 import tw.nekomimi.nekogram.utils.UIUtil;
+import tw.nekomimi.nekogram.utils.TelegramUtil;
 
 import static com.v2ray.ang.V2RayConfig.SSR_PROTOCOL;
 import static com.v2ray.ang.V2RayConfig.SS_PROTOCOL;
@@ -4138,6 +4139,18 @@ public class AndroidUtilities {
         }
         if (f == null || !f.exists()) {
             f = FileLoader.getInstance(message.currentAccount).getPathToMessage(message.messageOwner);
+        }
+        if (f != null && !f.exists()) {
+            String cacheFilePath = AndroidUtilities.getCacheDir().getAbsolutePath();
+            cacheFilePath += "/" + TelegramUtil.getFileNameWithoutEx(f.getName());
+            List<String> suffix = Arrays.asList(".pt", ".temp");
+            for (int ii = 0; ii < suffix.size(); ii++) {
+                f = new File(cacheFilePath + suffix.get(ii));
+                if (f.exists()) {
+                    message.putInDownloadsStore = true;
+                    break;
+                }
+            }
         }
         String mimeType = message.type == MessageObject.TYPE_FILE || message.type == MessageObject.TYPE_TEXT ? message.getMimeType() : null;
         return openForView(f, message.getFileName(), mimeType, activity, resourcesProvider, restrict);

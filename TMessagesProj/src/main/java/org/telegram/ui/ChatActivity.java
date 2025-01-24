@@ -10371,7 +10371,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
                 filterPopup.show();
             });
-            searchFilterButton.setContentDescription(LocaleController.getString(R.string.JumpToDate));
         }
     }
 
@@ -34103,6 +34102,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         if (searchUserButton != null) {
             searchUserButton.setVisibility(View.GONE);
         }
+        if (searchFilterButton != null) {
+            searchFilterButton.setVisibility(View.GONE);
+        }
         if (channelHashtags || forcePublic || ChatObject.isChannelAndNotMegaGroup(currentChat) && ChatObject.isPublic(currentChat) && searchingHashtag != null) {
             defaultSearchPage = 2;
 
@@ -34201,6 +34203,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             }
             if (searchUserButton != null) {
                 searchUserButton.setVisibility(View.GONE);
+            }
+            if (searchFilterButton != null) {
+                searchFilterButton.setVisibility(View.GONE);
             }
         }
         if (searchItem != null) {
